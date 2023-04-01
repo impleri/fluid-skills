@@ -42,12 +42,18 @@ public class Restrictions extends RestrictionsApi<Fluid, Restriction> {
         return canHelper(player, fluid, pos, "bucketable");
     }
 
+    public FluidFiniteMode getFiniteModeFor(Fluid fluid, ResourceLocation dimension, ResourceLocation biome) {
+        var fluidName = FluidHelper.getFluidName(fluid);
+        var cacheKey = new FiniteCacheKey(fluidName, dimension, biome);
+        return finiteCache.computeIfAbsent(cacheKey, (key) -> populateFiniteRestriction(fluid, dimension, biome));
+    }
+
     private record FiniteCacheKey(ResourceLocation fluid, ResourceLocation dimension, ResourceLocation biome) {
     }
 
     private final Map<FiniteCacheKey, FluidFiniteMode> finiteCache = new HashMap<>();
 
-    public FluidFiniteMode populateFiniteRestriction(Fluid fluid, ResourceLocation dimension, ResourceLocation biome) {
+    private FluidFiniteMode populateFiniteRestriction(Fluid fluid, ResourceLocation dimension, ResourceLocation biome) {
         var values = getRestrictionsFor(fluid).stream()
                 .filter(inIncludedDimension(dimension))
                 .filter(notInExcludedDimension(dimension))
@@ -64,12 +70,6 @@ public class Restrictions extends RestrictionsApi<Fluid, Restriction> {
         }
 
         return FluidFiniteMode.DEFAULT;
-    }
-
-    public FluidFiniteMode getFiniteModeFor(Fluid fluid, ResourceLocation dimension, ResourceLocation biome) {
-        var fluidName = FluidHelper.getFluidName(fluid);
-        var cacheKey = new FiniteCacheKey(fluidName, dimension, biome);
-        return finiteCache.computeIfAbsent(cacheKey, (key) -> populateFiniteRestriction(fluid, dimension, biome));
     }
 
     private final Map<Fluid, List<Restriction>> fluidRestrictionsCache = new HashMap<>();

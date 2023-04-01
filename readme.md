@@ -42,13 +42,8 @@ the [common restriction facets](https://github.com/impleri/player-skills#kubejs-
 
 These methods do not use player conditions, but dimension and biome conditions will apply
 
-- `infinite`: Allows fluid to create new source blocks (default behavior for water, only works on supported fluids)
-- `finite`: Disallows creating new source blocks (default behavior for lava, only works on supported fluids)
-
-#### Supported fluids
-
-- `minecraft:water`
-- `minecraft:lava`
+- `infinite`: Allows fluid to create new source blocks (default behavior for water)
+- `finite`: Disallows creating new source blocks (default behavior for lava)
 
 ### Examples
 
@@ -59,8 +54,26 @@ FluidSkillEvents.register(event => {
     'minecraft:lava',
     r => r.replaceWithFluid('water').if(player => player.cannot('skills:stage', 2))
   );
+
+  // Make water finite when not in an ocean biome
+  event.restrict("water", (is) => {
+    is.finite().notInBiome("#is_ocean"); // Remember: No `if`/`unless` conditions will work with this
+  });
+
+  // Make it impossible to bucket lava when in the overworld
+  event.restrict("lava", (is) => {
+    is.unbucketable().inDimension("overworld").if(player => player.cannot('skills:stage', 2));
+  });
 });
 ```
+
+### Caveats
+
+1. Adding a replacement restriction on common fluids (i.e. turning water in the Overworld into lava or similarly with
+   lava in the Nether) can cause a lot of lag on skills change which could kill instances without enough memory.
+2. We can only prevent _picking up_ a fluid with `unbucketable` because we are not guaranteed access to know what's in
+   the bucket and whether it contains anything without sacrificing working with bucket-like items from mods. To prevent
+   _placing_ a fluid, use Item Skills restrictions on the bucket item.
 
 ## Developers
 
