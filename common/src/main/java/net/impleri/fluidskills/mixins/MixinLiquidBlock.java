@@ -3,6 +3,7 @@ package net.impleri.fluidskills.mixins;
 import net.impleri.fluidskills.FluidHelper;
 import net.impleri.fluidskills.FluidSkills;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -22,23 +23,21 @@ public class MixinLiquidBlock {
     protected FlowingFluid fluid;
     private static final double MAX_DISTANCE = 10.0;
 
-    @Inject(method = "pickupBlock", at = @At("HEAD"))
+    @Inject(method = "pickupBlock", at = @At("HEAD"), cancellable = true)
     private void onPickup(LevelAccessor levelAccessor, BlockPos blockPos, BlockState blockState, CallbackInfoReturnable<ItemStack> cir) {
-        FluidSkills.LOGGER.info("Maybe preventing pickup of {}", FluidHelper.getFluidName(fluid));
-
-        var isSourceBlock = (Integer) blockState.getValue(LiquidBlock.LEVEL) == 0;
-
-        // Action is targeting a non-source block, so it can't be picked up
-        if (!isSourceBlock) {
-            return;
-        }
-
-        // Action is targeting a non-fluid block, so noting needs to be done here
+        // Action is targeting a non-fluid block, so nothing needs to be done here
         if (!FluidHelper.isFluidBlock(blockState)) {
             return;
         }
 
-        var player = levelAccessor.getNearestPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), MAX_DISTANCE, null);
+        // Action is targeting a non-source block, so it can't be picked up
+        if (!blockState.getFluidState().isSource()) {
+            return;
+        }
+
+        // We are assuming that the non-spectator player closed to the block being picked up is the one doing the action.
+        // If enough mods extend the player's reach past 10 blocks, this will fail here.
+        var player = levelAccessor.getNearestPlayer(blockPos.getX(), blockPos.getY(), blockPos.getZ(), MAX_DISTANCE, EntitySelector.NO_SPECTATORS);
 
         if (player == null) {
             FluidSkills.LOGGER.warn("Could not find a player within {} blocks of fluid {} being picked up", MAX_DISTANCE, FluidHelper.getFluidName(fluid));
@@ -48,7 +47,8 @@ public class MixinLiquidBlock {
         var canPickup = FluidHelper.canBucket(player, fluid, blockPos);
 
         if (!canPickup) {
-            cir.cancel();
+            FluidSkills.LOGGER.debug("Preventing pickup of {}", FluidHelper.getFluidName(fluid));
+            cir.setReturnValue(ItemStack.EMPTY);
         }
     }
 }

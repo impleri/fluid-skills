@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(FlowingFluid.class)
 public abstract class MixinFlowingFluid {
@@ -31,9 +30,26 @@ public abstract class MixinFlowingFluid {
     @Shadow
     protected abstract int getDropOff(LevelReader levelReader);
 
-    @Inject(method = "getNewLiquid", at = @At("RETURN"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void onGetNewLiquid(LevelReader levelReader, BlockPos blockPos, BlockState blockState, CallbackInfoReturnable<FluidState> cir, int i, int j) {
+    @Inject(method = "getNewLiquid", at = @At("RETURN"), cancellable = true)
+    private void onGetNewLiquid(LevelReader levelReader, BlockPos blockPos, BlockState blockState, CallbackInfoReturnable<FluidState> cir) {
+        FluidSkills.LOGGER.info("Maybe altering fluid finitude");
         var fluid = (FlowingFluid) (Object) this;
+
+        int maxAmount = 0;
+        int nearbySources = 0;
+
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            BlockPos relativeBlock = blockPos.relative(direction);
+            BlockState relativeState = levelReader.getBlockState(relativeBlock);
+            FluidState relativeFluid = relativeState.getFluidState();
+            if (relativeFluid.getType().isSame(fluid) && canPassThroughWall(direction, levelReader, blockPos, blockState, relativeBlock, relativeState)) {
+                if (relativeFluid.isSource()) {
+                    ++nearbySources;
+                }
+
+                maxAmount = Math.max(maxAmount, relativeFluid.getAmount());
+            }
+        }
 
         ResourceLocation currentDimension;
         var currentBiome = levelReader.getBiome(blockPos).unwrapKey().orElseThrow().location();
@@ -46,7 +62,7 @@ public abstract class MixinFlowingFluid {
         }
 
         var mode = FluidHelper.getFiniteModeFor(fluid, currentDimension, currentBiome);
-        FluidSkills.LOGGER.info("Maybe altering fluid {} to be {}", FluidHelper.getFluidName(fluid), mode);
+        FluidSkills.LOGGER.info("Altering fluid {} to be {}", FluidHelper.getFluidName(fluid), mode);
 
         switch (mode) {
             case DEFAULT -> {
@@ -62,14 +78,14 @@ public abstract class MixinFlowingFluid {
                     if (!fluidStateAbove.isEmpty() && fluidStateAbove.getType().isSame(fluid) && canPassThroughWall(Direction.UP, levelReader, blockPos, blockState, blockPosAbove, blockStateAbove)) {
                         cir.setReturnValue(fluid.getFlowing(8, true));
                     } else {
-                        int k = i - getDropOff(levelReader);
+                        int k = maxAmount - getDropOff(levelReader);
                         cir.setReturnValue(k <= 0 ? Fluids.EMPTY.defaultFluidState() : fluid.getFlowing(k, false));
                     }
                 }
             }
             case INFINITE -> {
                 // Copy logic from FlowingFluid.getNewLiquid for creating new source blocks but exclude call to canConvertToSource
-                if (j >= 2) {
+                if (nearbySources >= 2) {
                     BlockState blockStateBelow = levelReader.getBlockState(blockPos.below());
                     FluidState fluidStateBelow = blockStateBelow.getFluidState();
                     if (blockStateBelow.getMaterial().isSolid() || isSourceBlockOfThisType(fluidStateBelow)) {
