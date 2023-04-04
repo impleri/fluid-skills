@@ -70,7 +70,8 @@ FluidSkillEvents.register(event => {
 ### Caveats
 
 1. Adding a replacement restriction on common fluids (i.e. turning water in the Overworld into lava or similarly with
-   lava in the Nether) can cause a lot of lag on skills change which could kill instances without enough memory.
+   lava in the Nether) can cause a lot of lag in Forge on skills change which could kill instances without enough
+   memory.
 2. We can only prevent _picking up_ a fluid with `unbucketable` because we are not guaranteed access to know what's in
    the bucket and whether it contains anything without sacrificing working with bucket-like items from mods. To prevent
    _placing_ a fluid, use Item Skills restrictions on the bucket item.
