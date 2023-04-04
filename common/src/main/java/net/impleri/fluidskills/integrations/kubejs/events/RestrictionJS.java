@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 public class RestrictionJS extends Restriction {
     private static final ResourceKey<Registry<Restriction>> key = ResourceKey.createRegistryKey(SkillResourceLocation.of("fluid_restriction_builders_registry"));
@@ -59,7 +60,7 @@ public class RestrictionJS extends Restriction {
         }
 
         public Builder replaceWithAir() {
-            this.replacement = FluidHelper.getFluid((ResourceLocation) null);
+            this.replacement = Fluids.EMPTY;
 
             return this;
         }

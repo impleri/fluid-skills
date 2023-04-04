@@ -1,9 +1,13 @@
 package net.impleri.fluidskills;
 
+import com.mojang.brigadier.CommandDispatcher;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.platform.Platform;
-import net.impleri.fluidskills.commands.FluidSkillsCommands;
+import net.impleri.playerskills.commands.PlayerSkillsCommands;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +21,11 @@ public class FluidEvents {
     }
 
     public void registerCommands() {
-        CommandRegistrationEvent.EVENT.register(FluidSkillsCommands::register);
+        CommandRegistrationEvent.EVENT.register(this::registerDebugCommand);
+    }
+
+    private void registerDebugCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registry, Commands.CommandSelection selection) {
+        PlayerSkillsCommands.registerDebug(dispatcher, "fluidskills", PlayerSkillsCommands.toggleDebug("Fluid Skills", FluidSkills::toggleDebug));
     }
 
     private void onStartup(MinecraftServer minecraftServer) {
