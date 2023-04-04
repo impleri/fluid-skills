@@ -42,6 +42,8 @@ public class Restrictions extends RestrictionsApi<Fluid, Restriction> {
         return canHelper(player, fluid, pos, "bucketable");
     }
 
+    // Second layer cache: Finite/infinite value for (fluid, dimension, biome)
+
     public FluidFiniteMode getFiniteModeFor(Fluid fluid, ResourceLocation dimension, ResourceLocation biome) {
         var fluidName = FluidHelper.getFluidName(fluid);
         var cacheKey = new FiniteCacheKey(fluidName, dimension, biome);
@@ -59,7 +61,6 @@ public class Restrictions extends RestrictionsApi<Fluid, Restriction> {
                 .filter(notInExcludedDimension(dimension))
                 .filter(inIncludedBiome(biome))
                 .filter(notInExcludedBiome(biome))
-                .filter(restriction -> restriction.finiteMode != FluidFiniteMode.DEFAULT)
                 .map(restriction -> restriction.finiteMode)
                 .toList();
 
@@ -72,17 +73,19 @@ public class Restrictions extends RestrictionsApi<Fluid, Restriction> {
         return FluidFiniteMode.DEFAULT;
     }
 
-    private final Map<Fluid, List<Restriction>> fluidRestrictionsCache = new HashMap<>();
-
+    // First cache layer: all finite/infinite restrictions for the fluid
     private List<Restriction> getRestrictionsFor(Fluid fluid) {
         return fluidRestrictionsCache.computeIfAbsent(fluid, this::populateFluidRestrictions);
     }
+
+    private final Map<Fluid, List<Restriction>> fluidRestrictionsCache = new HashMap<>();
 
     private List<Restriction> populateFluidRestrictions(Fluid fluid) {
         var isTargetingFluid = createPredicateFor(fluid);
 
         return registry.entries().stream()
                 .filter(restriction -> isTargetingFluid.test(restriction.target))
+                .filter(restriction -> restriction.finiteMode != FluidFiniteMode.DEFAULT)
                 .toList();
     }
 }
