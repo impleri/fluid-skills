@@ -127,7 +127,7 @@ public class FluidHelper {
                         level.getBiome(blockPos).unwrapKey().orElseThrow().location().getPath(),
                         getFluidName(replacement)
                 );
-                
+
                 return replacement;
             }
 
@@ -143,7 +143,7 @@ public class FluidHelper {
 
     public static FluidFiniteMode getFiniteModeFor(Fluid fluid, ResourceLocation dimension, ResourceLocation biome) {
         var result = Restrictions.INSTANCE.getFiniteModeFor(fluid, dimension, biome);
-        FluidSkills.LOGGER.info(
+        FluidSkills.LOGGER.debug(
                 "How finite is fluid {} in {}/{} ? {}",
                 getFluidName(fluid),
                 biome,
