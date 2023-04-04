@@ -1,11 +1,11 @@
 package net.impleri.fluidskills.integrations.kubejs.events;
 
-import dev.latvian.mods.kubejs.server.ServerEventJS;
 import dev.latvian.mods.kubejs.util.ConsoleJS;
 import dev.latvian.mods.rhino.util.HideFromJS;
 import net.impleri.fluidskills.FluidHelper;
 import net.impleri.fluidskills.FluidSkills;
-import net.impleri.playerskills.utils.RegistrationType;
+import net.impleri.fluidskills.restrictions.Restriction;
+import net.impleri.playerskills.restrictions.AbstractRegistrationEventJS;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -14,24 +14,18 @@ import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-public class RestrictionsRegistrationEventJS extends ServerEventJS {
-    public RestrictionsRegistrationEventJS(MinecraftServer s) {
-        super(s);
-    }
-
-    public void restrict(String fluidName, @NotNull Consumer<RestrictionJS.Builder> consumer) {
-        RegistrationType<Fluid> registrationType = new RegistrationType<Fluid>(fluidName, Registry.FLUID_REGISTRY);
-
-        registrationType.ifNamespace(namespace -> restrictNamespace(namespace, consumer));
-        registrationType.ifName(name -> restrictFluid(name, consumer));
-        registrationType.ifTag(tag -> restrictTag(tag, consumer));
-    }
-
+public class RestrictionsRegistrationEventJS extends AbstractRegistrationEventJS<Fluid, Restriction, RestrictionJS.Builder> {
     @HideFromJS
-    public void restrictFluid(ResourceLocation name, @NotNull Consumer<RestrictionJS.Builder> consumer) {
-        var builder = new RestrictionJS.Builder(name, server);
+    public RestrictionsRegistrationEventJS(MinecraftServer s) {
+        super(s, "fluid", Registry.FLUID);
+    }
 
+    @Override
+    @HideFromJS
+    public void restrictOne(ResourceLocation name, @NotNull Consumer<RestrictionJS.Builder> consumer) {
+        var builder = new RestrictionJS.Builder(name, server);
         consumer.accept(builder);
 
         var fluid = FluidHelper.getFluid(name);
@@ -41,24 +35,20 @@ public class RestrictionsRegistrationEventJS extends ServerEventJS {
         }
 
         var restriction = builder.createObject(fluid);
-        ConsoleJS.SERVER.info("Created fluid restriction for " + name);
         FluidSkills.RESTRICTIONS.add(name, restriction);
+
+        logRestrictionCreation(restriction, name);
     }
 
+    @Override
     @HideFromJS
-    private void restrictNamespace(String namespace, @NotNull Consumer<RestrictionJS.Builder> consumer) {
-        ConsoleJS.SERVER.info("Creating fluid restrictions for namespace " + namespace);
-        net.minecraft.core.Registry.FLUID.keySet()
-                .stream()
-                .filter(fluidName -> fluidName.getNamespace().equals(namespace))
-                .forEach(fluidName -> restrictFluid(fluidName, consumer));
+    public Predicate<Fluid> isTagged(TagKey<Fluid> tag) {
+        return fluid -> fluid.is(tag);
     }
 
+    @Override
     @HideFromJS
-    private void restrictTag(TagKey<Fluid> tag, @NotNull Consumer<RestrictionJS.Builder> consumer) {
-        ConsoleJS.SERVER.info("Creating block restrictions for tag " + tag.location());
-        net.minecraft.core.Registry.FLUID.stream()
-                .filter(fluid -> fluid.is(tag))
-                .forEach(fluid -> restrictFluid(FluidHelper.getFluidName(fluid), consumer));
+    public ResourceLocation getName(Fluid resource) {
+        return FluidHelper.getFluidName(resource);
     }
 }
