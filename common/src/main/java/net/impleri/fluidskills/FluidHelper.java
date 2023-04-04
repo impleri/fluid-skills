@@ -7,8 +7,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DispensibleContainerItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -43,18 +41,8 @@ public class FluidHelper {
         return isFluidBlock(block.getBlock()) || !isEmptyFluid(block.getFluidState());
     }
 
-    public static boolean isBucketLikeItem(ItemStack itemStack) {
-        if (!itemStack.isEmpty()) {
-            var item = itemStack.getItem();
-
-            return (item instanceof DispensibleContainerItem bucketLike);
-        }
-
-        return false;
-    }
-
     public static boolean isReplacedFluid(Fluid a, Fluid b) {
-        return !b.isSame(a);
+        return !isEmptyFluid(a) && !b.isSame(a);
     }
 
     public static ResourceLocation getFluidName(Fluid fluid) {
@@ -66,13 +54,17 @@ public class FluidHelper {
     }
 
     public static Fluid getReplacementFor(Player player, Fluid original, BlockPos pos) {
+        if (isEmptyFluid(original)) {
+            return original;
+        }
+
         var level = player.getLevel();
         var dimension = level.dimension().location();
         var biome = level.getBiome(pos).unwrapKey().orElseThrow().location();
 
         var replacement = Restrictions.INSTANCE.getReplacementFor(player, original, dimension, biome);
 
-        if (isReplacedFluid(replacement, original)) {
+        if (isReplacedFluid(original, replacement)) {
             FluidSkills.LOGGER.debug("Replacing fluid {} in {}/{} with {}", getFluidName(original), dimension.getPath(), biome.getPath(), getFluidName(replacement));
         }
 
@@ -86,12 +78,23 @@ public class FluidHelper {
         var replacement = getReplacementFor(player, original, pos);
 
         // We have a replacement fluid
-        if (isReplacedFluid(original, replacement) && !isEmptyFluid(original)) {
-            var isEmptyReplacement = isEmptyFluid(replacement);
-            var replacedBlock = isEmptyReplacement ? Blocks.AIR.defaultBlockState() : Registry.BLOCK.get(getFluidName(replacement))
+        if (isReplacedFluid(original, replacement)) {
+            FluidSkills.LOGGER.debug(
+                    "Replacing block fluid of {} in {}/{} with {}",
+                    getFluidName(original),
+                    player.getLevel().dimension().location(),
+                    player.getLevel().getBiome(pos).unwrapKey().orElseThrow().location(),
+                    getFluidName(replacement)
+            );
+
+            if (isEmptyFluid(replacement)) {
+                return Blocks.AIR.defaultBlockState();
+            }
+
+            var replacedBlock = Registry.BLOCK.get(getFluidName(replacement))
                     .defaultBlockState();
 
-            if (!fluidState.isSource() && !isEmptyReplacement) {
+            if (!fluidState.isSource()) {
                 replacedBlock.setValue(LiquidBlock.LEVEL, originalBlock.getValue(LiquidBlock.LEVEL));
             }
 
@@ -114,21 +117,20 @@ public class FluidHelper {
             var blockState = level.getBlockState(blockPos);
             var original = blockState.getFluidState().getType();
 
-            if (!isEmptyFluid(original)) {
-                var replacement = getReplacementBlock(nearestPlayer, blockState, blockPos).getFluidState();
+            var replacement = getReplacementBlock(nearestPlayer, blockState, blockPos).getFluidState();
 
-                if (isReplacedFluid(replacement.getType(), original)) {
-                    FluidSkills.LOGGER.debug(
-                            "Replacing fluid {} in {}/{} for player interaction with {}",
-                            getFluidName(original),
-                            level.dimension().location().getPath(),
-                            level.getBiome(blockPos).unwrapKey().orElseThrow().location().getPath(),
-                            getFluidName(replacement)
-                    );
-                }
-
+            if (isReplacedFluid(original, replacement.getType())) {
+                FluidSkills.LOGGER.debug(
+                        "Replacing fluid {} in {}/{} for entity with {}",
+                        getFluidName(original),
+                        level.dimension().location().getPath(),
+                        level.getBiome(blockPos).unwrapKey().orElseThrow().location().getPath(),
+                        getFluidName(replacement)
+                );
+                
                 return replacement;
             }
+
         }
 
         return level.getFluidState(blockPos);
@@ -140,6 +142,15 @@ public class FluidHelper {
     }
 
     public static FluidFiniteMode getFiniteModeFor(Fluid fluid, ResourceLocation dimension, ResourceLocation biome) {
-        return Restrictions.INSTANCE.getFiniteModeFor(fluid, dimension, biome);
+        var result = Restrictions.INSTANCE.getFiniteModeFor(fluid, dimension, biome);
+        FluidSkills.LOGGER.info(
+                "How finite is fluid {} in {}/{} ? {}",
+                getFluidName(fluid),
+                biome,
+                dimension,
+                result
+        );
+
+        return result;
     }
 }
