@@ -46,11 +46,6 @@ the [common restriction facets](https://github.com/impleri/player-skills#kubejs-
 
 These methods do not use player conditions, but dimension and biome conditions will apply
 
-<<<<<<< Updated upstream
-
-- `infinite`: Allows fluid to create new source blocks (default behavior for water)
-- `finite`: Disallows creating new source blocks (default behavior for lava)
-  =======
 - `infinite`: Allows fluid to create new source blocks (default behavior for water, only works on supported fluids)
 - `finite`: Disallows creating new source blocks (default behavior for lava, only works on supported fluids)
 
@@ -58,7 +53,6 @@ These methods do not use player conditions, but dimension and biome conditions w
 
 Vanilla fluids and any others which extend `FlowingFluid` without overriding the `getNewLiquid` method can be altered to
 be (in)finite. Everything else should work for all fluids.
-> > > > > > > Stashed changes
 
 ### Examples
 
