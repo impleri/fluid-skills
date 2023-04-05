@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.material.Fluid;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
@@ -33,13 +34,51 @@ public class Restrictions extends RestrictionsApi<Fluid, Restriction> {
         return (Fluid target) -> target.isSame(fluid);
     }
 
-    private boolean canHelper(Player player, Fluid fluid, BlockPos pos, String resource) {
+    private boolean canHelper(@Nullable Player player, Fluid fluid, @Nullable BlockPos pos, String resource) {
+        if (player == null) {
+            return false;
+        }
+
+        var blockPos = pos == null ? player.getOnPos() : pos;
         var level = player.getLevel();
-        return canPlayer(player, fluid, level.dimension().location(), level.getBiome(pos).unwrapKey().orElseThrow().location(), resource);
+        var dimension = level.dimension().location();
+        var biome = level.getBiome(blockPos).unwrapKey().orElseThrow().location();
+
+        return canPlayer(player, fluid, dimension, biome, resource);
     }
 
-    public boolean isBucketable(Player player, Fluid fluid, BlockPos pos) {
+    public boolean isBucketable(@Nullable Player player, Fluid fluid, @Nullable BlockPos pos) {
         return canHelper(player, fluid, pos, "bucketable");
+    }
+
+    public boolean isBucketable(@Nullable Player player, Fluid fluid) {
+        return isBucketable(player, fluid, null);
+    }
+
+    public boolean isProducible(@Nullable Player player, Fluid fluid, @Nullable BlockPos pos) {
+        FluidSkills.LOGGER.info("Checking if {} is producible for {}", FluidHelper.getFluidName(fluid), player == null ? "unknown" : player.getName().getString());
+        return canHelper(player, fluid, pos, "producible");
+    }
+
+    public boolean isProducible(@Nullable Player player, Fluid fluid) {
+        return isProducible(player, fluid, null);
+    }
+
+    public boolean isConsumable(@Nullable Player player, Fluid fluid, @Nullable BlockPos pos) {
+        FluidSkills.LOGGER.info("Checking if {} is consumable for {}", FluidHelper.getFluidName(fluid), player == null ? "unknown" : player.getName().getString());
+        return canHelper(player, fluid, pos, "consumable");
+    }
+
+    public boolean isConsumable(@Nullable Player player, Fluid fluid) {
+        return isConsumable(player, fluid, null);
+    }
+
+    public boolean isIdentifiable(@Nullable Player player, Fluid fluid, @Nullable BlockPos pos) {
+        return canHelper(player, fluid, pos, "identifiable");
+    }
+
+    public boolean isIdentifiable(@Nullable Player player, Fluid fluid) {
+        return isIdentifiable(player, fluid, null);
     }
 
     // Second layer cache: Finite/infinite value for (fluid, dimension, biome)

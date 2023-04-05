@@ -12,6 +12,9 @@ import java.util.function.Predicate;
 
 public class Restriction extends AbstractRestriction<Fluid> {
     public final boolean bucketable;
+    public final boolean producible;
+    public final boolean consumable;
+    public final boolean identifiable;
 
     public final FluidFiniteMode finiteMode;
 
@@ -23,12 +26,18 @@ public class Restriction extends AbstractRestriction<Fluid> {
             @Nullable List<ResourceLocation> includeBiomes,
             @Nullable List<ResourceLocation> excludeBiomes,
             @Nullable Boolean bucketable,
+            @Nullable Boolean producible,
+            @Nullable Boolean consumable,
+            @Nullable Boolean identifiable,
             @Nullable FluidFiniteMode finiteMode,
             @NotNull Fluid replacement
     ) {
         super(target, condition, includeDimensions, excludeDimensions, includeBiomes, excludeBiomes, replacement);
 
         this.bucketable = Boolean.TRUE.equals(bucketable);
+        this.producible = Boolean.TRUE.equals(producible);
+        this.consumable = Boolean.TRUE.equals(consumable);
+        this.identifiable = Boolean.TRUE.equals(identifiable);
         this.finiteMode = finiteMode == null ? FluidFiniteMode.DEFAULT : finiteMode;
     }
 }
