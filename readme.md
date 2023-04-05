@@ -32,18 +32,33 @@ the [common restriction facets](https://github.com/impleri/player-skills#kubejs-
 
 - `nothing`: shorthand to apply all "allow" restrictions
 - `bucketable`: Player can pick up a source block with a bucket
+- `producible`: Player can see recipes in JEI/REI that produce this fluid
+- `consumable`: Player can see recipes in JEI/REI that use this fluid
 
 #### Deny Restriction Methods
 
 - `everything`: shorthand to apply the below "deny" abilities
 - `unbucketable`: Player cannot pick up a source block with a bucket
+- `unproducible`: Player cannot see recipes in JEI/REI that produce this fluid
+- `unconsumable`: Player cannot see recipes in JEI/REI that use this fluid
 
 ### Other methods
 
 These methods do not use player conditions, but dimension and biome conditions will apply
 
+<<<<<<< Updated upstream
+
 - `infinite`: Allows fluid to create new source blocks (default behavior for water)
 - `finite`: Disallows creating new source blocks (default behavior for lava)
+  =======
+- `infinite`: Allows fluid to create new source blocks (default behavior for water, only works on supported fluids)
+- `finite`: Disallows creating new source blocks (default behavior for lava, only works on supported fluids)
+
+#### Supported fluids
+
+Vanilla fluids and any others which extend `FlowingFluid` without overriding the `getNewLiquid` method can be altered to
+be (in)finite. Everything else should work for all fluids.
+> > > > > > > Stashed changes
 
 ### Examples
 
@@ -64,6 +79,12 @@ FluidSkillEvents.register(event => {
   event.restrict("lava", (is) => {
     is.unbucketable().inDimension("overworld").if(player => player.cannot('skills:stage', 2));
   });
+
+  // Make it impossible to create lava using recipes (e.g. Create)
+  event.restrict(
+    'minecraft:lava',
+    r => r.unproducible().if(player => player.cannot('skills:stage', 3))
+  );
 });
 ```
 
