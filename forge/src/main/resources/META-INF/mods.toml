@@ -40,3 +40,17 @@ mandatory = true
 versionRange = "[6.2.43,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.fluidskills]]
+modId = "roughlyenoughitems"
+mandatory = false
+versionRange = "[9,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.fluidskills]]
+modId = "jei"
+mandatory = false
+versionRange = "[11,)"
+ordering = "NONE"
+side = "BOTH"

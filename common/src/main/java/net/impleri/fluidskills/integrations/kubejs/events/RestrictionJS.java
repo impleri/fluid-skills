@@ -29,6 +29,9 @@ public class RestrictionJS extends Restriction {
                 builder.includeBiomes,
                 builder.excludeBiomes,
                 builder.bucketable,
+                builder.producible,
+                builder.consumable,
+                builder.identifiable,
                 builder.finiteMode,
                 builder.replacement
         );
@@ -39,6 +42,9 @@ public class RestrictionJS extends Restriction {
 
         public FluidFiniteMode finiteMode;
         public boolean bucketable = true;
+        public boolean producible = true;
+        public boolean consumable = true;
+        public boolean identifiable = true;
 
         @HideFromJS
         public Builder(ResourceLocation id, MinecraftServer server) {
@@ -77,6 +83,42 @@ public class RestrictionJS extends Restriction {
             return this;
         }
 
+        public Builder producible() {
+            this.producible = true;
+
+            return this;
+        }
+
+        public Builder unproducible() {
+            this.producible = false;
+
+            return this;
+        }
+
+        public Builder consumable() {
+            this.consumable = true;
+
+            return this;
+        }
+
+        public Builder unconsumable() {
+            this.consumable = false;
+
+            return this;
+        }
+
+        public Builder identifiable() {
+            this.identifiable = true;
+
+            return this;
+        }
+
+        public Builder unidentifiable() {
+            this.identifiable = false;
+
+            return this;
+        }
+
         public Builder infinite() {
             this.finiteMode = FluidFiniteMode.INFINITE;
 
@@ -91,12 +133,18 @@ public class RestrictionJS extends Restriction {
 
         public Builder nothing() {
             bucketable = true;
+            producible = true;
+            consumable = true;
+            identifiable = true;
 
             return this;
         }
 
         public Builder everything() {
             bucketable = false;
+            producible = false;
+            consumable = false;
+            identifiable = false;
 
             return this;
         }

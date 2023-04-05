@@ -36,6 +36,8 @@ subprojects {
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
         mappings loom.officialMojangMappings()
+
+        compileOnly "me.shedaniel:REIPluginCompatibilities-forge-annotations:9+"
     }
 
     if (project.name.contains("fabric") || project.name.contains("forge")) {
@@ -61,6 +63,16 @@ subprojects {
                     optional {
                         curseforge = "kubejs"
                         modrinth = "kubejs"
+                    }
+
+                    optional {
+                        curseforge = "roughly-enough-items"
+                        modrinth = "rei"
+                    }
+
+                    optional {
+                        curseforge = "jei"
+                        modrinth = "jei"
                     }
                 }
 
