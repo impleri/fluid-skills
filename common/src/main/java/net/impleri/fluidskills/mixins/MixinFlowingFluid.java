@@ -32,12 +32,6 @@ public abstract class MixinFlowingFluid {
     @Shadow
     protected abstract int getDropOff(LevelReader levelReader);
 
-    @Shadow
-    protected abstract int sourceNeighborCount(LevelReader levelReader, BlockPos blockPos);
-
-    @Shadow
-    public abstract FluidState getSource(boolean bl);
-
     private FluidFiniteMode getFiniteMode(Fluid fluid, LevelReader levelReader, BlockPos blockPos) {
         ResourceLocation currentDimension;
         var currentBiome = levelReader.getBiome(blockPos).unwrapKey().orElseThrow().location();
