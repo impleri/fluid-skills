@@ -1,9 +1,31 @@
 # Fluid Skills
 
-A library mod that exposes KubeJS methods to restrict how players see and interact with fluids. Built around
-[Player Skills](https://github.com/impleri/player-skills). This interacts with Block Skills and Item Skills to provide
-some of its functionality: Block Skills to replace fluids in the world, Item Skills to interact with recipes using
-fluids.
+A library mod to control how players see and interact with fluids using skill-based rectrictions created in KubeJS
+scripts. This is similar to Ore Stages, but it targets fluids instead of blocks and interacts with JEI/REI for hiding
+recipes that use fluids, complementing Item Skills.
+
+[![CurseForge](https://cf.way2muchnoise.eu/short_837104.svg)](https://www.curseforge.com/minecraft/mc-mods/fluid-skills)
+[![Modrinth](https://img.shields.io/modrinth/dt/fluid-skills?color=bcdeb7&label=%20&logo=modrinth&logoColor=096765&style=plastic)](https://modrinth.com/mod/fluid-skills)
+[![MIT license](https://img.shields.io/github/license/impleri/fluid-skills?color=bcdeb7&label=Source&logo=github&style=flat)](https://github.com/impleri/fluid-skills)
+[![Discord](https://img.shields.io/discord/1093178610950623233?color=096765&label=Community&logo=discord&logoColor=bcdeb7&style=plastic)](https://discord.com/invite/avxJgbaUmG)
+[![Maven](https://img.shields.io/maven-metadata/v?color=096765&label=%20&logo=gradle&logoColor=bcdeb7&metadataUrl=https%3A%2F%2Fmaven.impleri.org%2Fminecraft%2Fnet%2Fimpleri%2Ffluid-skills-1.19.2%2Fmaven-metadata.xml&style=flat)](https://github.com/impleri/fluid-skills#developers)
+
+### xSkills Mods
+
+[Player Skills](https://github.com/impleri/player-skills)
+| [Block Skills](https://github.com/impleri/block-skills)
+| [Dimension Skills](https://github.com/impleri/dimension-skills)
+| [Fluid Skills](https://github.com/impleri/fluid-skills)
+| [Item Skills](https://github.com/impleri/item-skills)
+| [Mob Skills](https://github.com/impleri/mob-skills)
+
+## Concepts
+
+This mod leans extensively on Player Skills by creating and consuming the Skill-based Restrictions. Out of the box, this
+mod can restrict whether a fluid can be removed from the world, crafted, visible in JEI or REI, and whether it can
+be identified in a tooltip. It also provides a way to mask fluids in world by replacing them with either air or another
+fluid (e.g. make all crude oil appear **and function** as lava). Lastly, this mod also provides a way to manipulate
+fluid finitiude (e.g. make water finite or make lava infinite).
 
 ## KubeJS API
 
@@ -17,37 +39,36 @@ We use the `FluidSkillEvents.register` event to register fluid restrictions. If 
 the following restrictions are applied. This can cascade with other restrictions, so any restrictions which replaces a
 fluid will trump any which only add restrictions to the fluid. Also, any restrictions which deny the ability
 will trump any which allow it. We also expose these methods to indicate what restrictions are in place for when a player
-meets that condition. By default, no restrictions are set, so be sure to set actual restrictions.
-
-As an extension to PlayerSkills, all
-the [common restriction facets](https://github.com/impleri/player-skills#kubejs-restrictions-api) are usable here.
+meets that condition. By default, no restrictions are set, so be sure to set actual
+restrictions. [See Player Skills documentation for the shared API](https://github.com/impleri/player-skills#kubejs-restrictions-api).
 
 #### Replacement methods
 
-- `replaceWithFluid`: ResourceLocation/string referencing a fluid. Flowing states will be matched if possible when
-  replacing in-world fluids.
-- `replaceWithAir`: Replaces the fluid with air (it's completely hidden!)
+- `replaceWithFluid(fluid: string)` - Replaces the targeted fluid with the named replacement. Flowing states will be
+  matched if possible when replacing in-world fluids.
+- `replaceWithAir()` - Replaces the fluid with air (it's completely hidden!)
 
 #### Allow Restriction Methods
 
-- `nothing`: shorthand to apply all "allow" restrictions
-- `bucketable`: Player can pick up a source block with a bucket
-- `producible`: Player can see recipes in JEI/REI that produce this fluid
-- `consumable`: Player can see recipes in JEI/REI that use this fluid
+- `nothing()` - shorthand to apply all "allow" restrictions
+- `bucketable()` - Player can pick up a source block with a bucket
+- `producible()` - Player can see recipes in JEI/REI that produce this fluid
+- `consumable()` - Player can see recipes in JEI/REI that use this fluid
 
 #### Deny Restriction Methods
 
-- `everything`: shorthand to apply the below "deny" abilities
-- `unbucketable`: Player cannot pick up a source block with a bucket
-- `unproducible`: Player cannot see recipes in JEI/REI that produce this fluid
-- `unconsumable`: Player cannot see recipes in JEI/REI that use this fluid
+- `everything()` - shorthand to apply the below "deny" abilities
+- `unbucketable()` - Player cannot pick up a source block with a bucket
+- `unproducible()` - Player cannot see recipes in JEI/REI that produce this fluid
+- `unconsumable()` - Player cannot see recipes in JEI/REI that use this fluid
 
 ### Other methods
 
-These methods do not use player conditions, but dimension and biome conditions will apply
+These methods do not use player conditions, but dimension and
+biome [facets](https://github.com/impleri/player-skills#kubejs-restrictions-api) will apply.
 
-- `infinite`: Allows fluid to create new source blocks (default behavior for water, only works on supported fluids)
-- `finite`: Disallows creating new source blocks (default behavior for lava, only works on supported fluids)
+- `infinite()`: Allows fluid to create new source blocks (default behavior for water)
+- `finite()`: Disallows creating new source blocks (default behavior for lava)
 
 #### Supported fluids
 
@@ -64,9 +85,9 @@ FluidSkillEvents.register(event => {
     r => r.replaceWithFluid('water').if(player => player.cannot('skills:stage', 2))
   );
 
-  // Make water finite when not in an ocean biome
+  // Make water finite when not in an ocean or river biome in the overworld
   event.restrict("water", (is) => {
-    is.finite().notInBiome("#is_ocean"); // Remember: No `if`/`unless` conditions will work with this
+    is.finite().inDimension("overworld").notInBiome("#is_ocean").notInBiome("river"); // Remember: No `if`/`unless` conditions will work with this
   });
 
   // Make it impossible to bucket lava when in the overworld
@@ -85,11 +106,16 @@ FluidSkillEvents.register(event => {
 ### Caveats
 
 1. Adding a replacement restriction on common fluids (i.e. turning water in the Overworld into lava or similarly with
-   lava in the Nether) can cause a lot of lag in Forge on skills change which could kill instances without enough
-   memory.
+   lava in the Nether) can cause a lot of lag in Forge on skills change which could kill single player instances without
+   enough memory.
 2. We can only prevent _picking up_ a fluid with `unbucketable` because we are not guaranteed access to know what's in
    the bucket and whether it contains anything without sacrificing working with bucket-like items from mods. To prevent
    _placing_ a fluid, use Item Skills restrictions on the bucket item.
+3. To see _replacements_ in world, Block Skills must be installed.
+4. JEI integration does not remove recipes related to the `unconsumable` flag. It does hide the recipes from
+   right-clicking on the ingredient. However, it does not remove the recipe itself -- only `unproducible` does that.
+   That is, a crafty player could view a recipe that produces the item, then right click on the produced item to see
+   what recipes with which it can be consumed.
 
 ## Developers
 
@@ -100,11 +126,11 @@ and [PlayerSkills](https://github.com/impleri/player-skills), so you'll need tho
 ```groovy
 dependencies {
     // Common should always be included 
-    modImplementation "net.impleri:fluid-skills-${minecraft_version}:${blockskills_version}"
+    modImplementation "net.impleri:fluid-skills-${minecraft_version}:${fluidskills_version}"
     // Plus forge
-    modApi "net.impleri:fluid-skills-${minecraft_version}-forge:${blockskills_version}"
+    modApi "net.impleri:fluid-skills-${minecraft_version}-forge:${fluidskills_version}"
     // Or fabric
-    modApi "net.impleri:fluid-skills-${minecraft_version}-fabric:${blockskills_version}"
+    modApi "net.impleri:fluid-skills-${minecraft_version}-fabric:${fluidskills_version}"
 }
 repositories {
     maven {
