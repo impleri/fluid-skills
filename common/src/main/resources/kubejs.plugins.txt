@@ -1,0 +1,1 @@
+net.impleri.fluidskills.integrations.kubejs.FluidSkillsPlugin

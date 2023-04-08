@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "fluidskills",
+  "version": "${version}",
+  "name": "Fluid Skills",
+  "description": "A library mod that exposes KubeJS methods to restrict how players see and interact with fluids.",
+  "authors": [
+    "impleri"
+  ],
+  "contact": {
+    "homepage": "https://github.com/impleri/fluid-skills",
+    "sources": "https://github.com/impleri/fluid-skills",
+    "issues": "https://github.com/impleri/fluid-skills/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/fluidskills/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.impleri.fluidskills.fabric.FluidSkillsFabric"
+    ],
+    "jei_mod_plugin": [
+      "net.impleri.fluidskills.integrations.jei.fabric.FluidSkillsJeiPluginFabric"
+    ],
+    "rei_client": [
+      "net.impleri.fluidskills.integrations.rei.FluidSkillsReiPlugin"
+    ]
+  },
+  "mixins": [
+    "fluidskills-common.mixins.json",
+    "fluidskills.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": "1.19.2",
+    "architectury": ">=6.2.43",
+    "playerskills": ">=1.7.2"
+  },
+  "suggests": {
+    "blockskills": ">=1.3.0",
+    "roughlyenoughitems": ">=9.0.0",
+    "jei": ">=11.0.0"
+  }
+}

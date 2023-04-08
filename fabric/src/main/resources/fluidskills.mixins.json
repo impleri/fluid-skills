@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.impleri.fluidskills.mixins.fabric",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "MixinEntity"
+  ],
+  "client": [],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
