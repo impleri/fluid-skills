@@ -16,4 +16,9 @@ public class MixinEntity {
     private FluidState onFluidInEyes(Level instance, BlockPos blockPos) {
         return FluidHelper.replaceFluidStateForEntity((Entity) (Object) this, instance, blockPos);
     }
+
+    @Redirect(method = "updateFluidHeightAndDoFluidPushing", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"))
+    private FluidState onUpdateFluidHeight(Level instance, BlockPos blockPos) {
+        return FluidHelper.replaceFluidStateForEntity((Entity) (Object) this, instance, blockPos);
+    }
 }

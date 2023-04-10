@@ -19,9 +19,6 @@
     "main": [
       "net.impleri.fluidskills.fabric.FluidSkillsFabric"
     ],
-    "jei_mod_plugin": [
-      "net.impleri.fluidskills.integrations.jei.fabric.FluidSkillsJeiPluginFabric"
-    ],
     "rei_client": [
       "net.impleri.fluidskills.integrations.rei.FluidSkillsReiPlugin"
     ]
@@ -32,13 +29,12 @@
   ],
   "depends": {
     "fabric": "*",
-    "minecraft": "1.19.2",
-    "architectury": ">=6.2.43",
-    "playerskills": ">=1.7.2"
+    "minecraft": "1.18.2",
+    "architectury": ">=5.0",
+    "playerskills": ">=1.0.2"
   },
   "suggests": {
     "blockskills": ">=1.3.0",
-    "roughlyenoughitems": ">=9.0.0",
-    "jei": ">=11.0.0"
+    "roughlyenoughitems": ">=8.3.0"
   }
 }
