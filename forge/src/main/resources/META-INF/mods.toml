@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
+loaderVersion = "[40,41)"
 issueTrackerURL = "https://github.com/impleri/fluid-skills/issues"
 license = "MIT"
 
@@ -16,41 +16,34 @@ A library mod that exposes KubeJS methods to restrict how players see and intera
 [[dependencies.fluidskills]]
 modId = "playerskills"
 mandatory = true
-versionRange = "[1.7,)"
+versionRange = "[1.0,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fluidskills]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,)"
+versionRange = "[40,41)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fluidskills]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.2]"
+versionRange = "[1.18.2]"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fluidskills]]
 modId = "architectury"
 mandatory = true
-versionRange = "[6.2.43,)"
+versionRange = "[5.0,)"
 ordering = "AFTER"
-side = "BOTH"
-
-[[dependencies.fluidskills]]
-modId = "roughlyenoughitems"
-mandatory = false
-versionRange = "[9,)"
-ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.fluidskills]]
 modId = "jei"
 mandatory = false
-versionRange = "[11,)"
+versionRange = "[9,)"
 ordering = "NONE"
 side = "BOTH"

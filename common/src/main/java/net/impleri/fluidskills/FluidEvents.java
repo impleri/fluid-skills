@@ -5,7 +5,6 @@ import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.platform.Platform;
 import net.impleri.playerskills.commands.PlayerSkillsCommands;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
@@ -23,7 +22,7 @@ public class FluidEvents {
         CommandRegistrationEvent.EVENT.register(this::registerDebugCommand);
     }
 
-    private void registerDebugCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registry, Commands.CommandSelection selection) {
+    private void registerDebugCommand(CommandDispatcher<CommandSourceStack> dispatcher, Commands.CommandSelection selection) {
         PlayerSkillsCommands.registerDebug(dispatcher, "fluidskills", PlayerSkillsCommands.toggleDebug("Fluid Skills", FluidSkills::toggleDebug));
     }
 

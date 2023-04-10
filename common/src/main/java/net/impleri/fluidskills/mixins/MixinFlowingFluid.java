@@ -5,12 +5,13 @@ import net.impleri.fluidskills.FluidSkills;
 import net.impleri.fluidskills.restrictions.FluidFiniteMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -39,8 +40,12 @@ public abstract class MixinFlowingFluid {
         if (levelReader instanceof Level level) {
             currentDimension = level.dimension().location();
         } else {
-            // This is pretty hacky and rests on the hope that the dimension name matches the dimension type
-            currentDimension = BuiltinRegistries.DIMENSION_TYPE.getKey(levelReader.dimensionType());
+            var dimensionRegistry = (Registry<DimensionType>) Registry.REGISTRY.get(Registry.DIMENSION_TYPE_REGISTRY.location());
+            if (dimensionRegistry == null) {
+                FluidSkills.LOGGER.warn("Could not determine dimension for calculating fluid finitude");
+                return FluidFiniteMode.DEFAULT;
+            }
+            currentDimension = dimensionRegistry.getKey(levelReader.dimensionType());
         }
 
         var mode = FluidHelper.getFiniteModeFor(fluid, currentDimension, currentBiome);
