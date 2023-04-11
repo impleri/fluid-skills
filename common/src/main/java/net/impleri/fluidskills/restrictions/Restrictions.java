@@ -36,7 +36,7 @@ public class Restrictions extends RestrictionsApi<Fluid, Restriction> {
 
     private boolean canHelper(@Nullable Player player, Fluid fluid, @Nullable BlockPos pos, String resource) {
         if (player == null) {
-            return false;
+            return true;
         }
 
         var blockPos = pos == null ? player.getOnPos() : pos;

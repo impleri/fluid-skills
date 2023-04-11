@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(Entity.class)
 public class MixinEntity {
-
     @Redirect(method = "updateFluidOnEyes", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"))
     private FluidState onFluidInEyes(Level instance, BlockPos blockPos) {
         return FluidHelper.replaceFluidStateForEntity((Entity) (Object) this, instance, blockPos);

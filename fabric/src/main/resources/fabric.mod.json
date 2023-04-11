@@ -30,11 +30,11 @@
   "depends": {
     "fabric": "*",
     "minecraft": "1.18.2",
-    "architectury": ">=5.0",
+    "architectury": ">=4.0",
     "playerskills": ">=1.0.2"
   },
   "suggests": {
-    "blockskills": ">=1.3.0",
-    "roughlyenoughitems": ">=8.3.0"
+    "blockskills": ">=1.2.0",
+    "roughlyenoughitems": ">=8.0"
   }
 }

@@ -37,13 +37,13 @@ side = "BOTH"
 [[dependencies.fluidskills]]
 modId = "architectury"
 mandatory = true
-versionRange = "[5.0,)"
+versionRange = "[4.0,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.fluidskills]]
 modId = "jei"
 mandatory = false
-versionRange = "[9,)"
+versionRange = "[9.0,)"
 ordering = "NONE"
 side = "BOTH"
