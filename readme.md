@@ -35,7 +35,7 @@ in cascading progress: when the player starts, the fluid is replaced with someth
 
 ### Register
 
-We use the `FluidSkillEvents.register` event to register fluid restrictions. If the player ***matches*** the criteria,
+We use the `fluidSkills.register` event to register fluid restrictions. If the player ***matches*** the criteria,
 the following restrictions are applied. This can cascade with other restrictions, so any restrictions which replaces a
 fluid will trump any which only add restrictions to the fluid. Also, any restrictions which deny the ability
 will trump any which allow it. We also expose these methods to indicate what restrictions are in place for when a player
@@ -78,7 +78,7 @@ be (in)finite. Everything else should work for all fluids.
 ### Examples
 
 ```js
-FluidSkillEvents.register(event => {
+onEvent("fluidSkills.register", event => {
   // Replace lava with water
   event.restrict(
     'minecraft:lava',
