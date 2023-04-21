@@ -31,7 +31,7 @@
     "fabric": "*",
     "minecraft": "1.18.2",
     "architectury": ">=4.0",
-    "playerskills": ">=1.1"
+    "playerskills": ">=2.0"
   },
   "suggests": {
     "blockskills": ">=1.2.0",
