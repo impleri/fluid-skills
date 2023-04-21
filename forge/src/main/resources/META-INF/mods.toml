@@ -16,7 +16,7 @@ A library mod that exposes KubeJS methods to restrict how players see and intera
 [[dependencies.fluidskills]]
 modId = "playerskills"
 mandatory = true
-versionRange = "[1.0,)"
+versionRange = "[1.1,)"
 ordering = "NONE"
 side = "BOTH"
 
