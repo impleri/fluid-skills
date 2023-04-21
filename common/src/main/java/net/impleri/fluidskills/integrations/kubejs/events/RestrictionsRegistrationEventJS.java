@@ -5,7 +5,7 @@ import dev.latvian.mods.rhino.util.HideFromJS;
 import net.impleri.fluidskills.FluidHelper;
 import net.impleri.fluidskills.FluidSkills;
 import net.impleri.fluidskills.restrictions.Restriction;
-import net.impleri.playerskills.restrictions.AbstractRegistrationEventJS;
+import net.impleri.playerskills.integration.kubejs.api.AbstractRegistrationEventJS;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
