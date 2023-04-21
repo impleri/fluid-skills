@@ -6,7 +6,7 @@ import net.impleri.fluidskills.FluidHelper;
 import net.impleri.fluidskills.FluidSkills;
 import net.impleri.fluidskills.restrictions.FluidFiniteMode;
 import net.impleri.fluidskills.restrictions.Restriction;
-import net.impleri.playerskills.restrictions.AbstractRestrictionBuilder;
+import net.impleri.playerskills.integration.kubejs.api.AbstractRestrictionBuilder;
 import net.impleri.playerskills.utils.SkillResourceLocation;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
